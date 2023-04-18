@@ -324,8 +324,8 @@ func GetUser() gin.HandlerFunc {
 	}
 }
 
-func HomePage () gin.HandlerFunc{
-	return func(c *gin.Context) {
-		c.HTML(http.StatusOK,"homepage.html",nil)
-	}
-}
+// func HomePage () gin.HandlerFunc{
+// 	return func(c *gin.Context) {
+// 		c.HTML(http.StatusOK,"homepage.html",nil)
+// 	}
+// }
