@@ -56,7 +56,8 @@ func Signup() gin.HandlerFunc {
 		//context is a standard package of Golang that makes it easy to pass request-scoped values, cancelation signals,
 		//and deadlines across API boundaries to all the goroutines involved in handling a request.
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second) //to running backgroup process.when deal with the database.
-		var user models.User                                                         //custom datatype
+		c.HTML(http.StatusOK, "signup.html", nil)
+		var user models.User //custom datatype
 
 		if err := c.BindJSON(&user); err != nil { //respone received from postman.
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -187,7 +188,7 @@ func ProductAddByAdmin() gin.HandlerFunc {
 			return
 		}
 		defer cancel()
-		c.JSON(http.StatusOK, "Successfully added our Product Admin!!")
+		c.JSON(http.StatusOK, "Successfully added our Product!!")
 	}
 }
 
@@ -320,5 +321,11 @@ func GetUser() gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, user)
+	}
+}
+
+func HomePage () gin.HandlerFunc{
+	return func(c *gin.Context) {
+		c.HTML(http.StatusOK,"homepage.html",nil)
 	}
 }
