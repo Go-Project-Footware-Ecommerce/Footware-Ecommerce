@@ -40,17 +40,6 @@ func ProductReviews() gin.HandlerFunc {
 			c.IndentedJSON(http.StatusNotAcceptable, err.Error())
 		}
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-		// match_filter := bson.D{{Key: "$match", Value: bson.D{primitive.E{Key: "_id", Value: product}}}}
-		// unwind := bson.D{{Key: "$unwind", Value: bson.D{primitive.E{Key: "path", Value: "$reviews"}}}}
-		// group := bson.D{{Key: "$group", Value: bson.D{primitive.E{Key: "_id", Value: "$product_id"}, {Key: "count", Value: bson.D{primitive.E{Key: "$sum", Value: 1}}}}}}
-		// _, err = ProductCollection.Aggregate(ctx, mongo.Pipeline{match_filter, unwind, group})
-		// if err != nil {
-		// 	c.IndentedJSON(500, "Internal Server Error")
-		// }
-		// var reviewinfo []bson.M
-		// if err = pointcursor.All(ctx, &reviewinfo); err != nil {
-		// 	panic(err)
-		// }
 		filter := bson.D{primitive.E{Key: "_id", Value: product}}
 		update := bson.D{{Key: "$push", Value: bson.D{primitive.E{Key: "review", Value: addReview}}}}
 		_, err = ProductCollection.UpdateOne(ctx, filter, update)
