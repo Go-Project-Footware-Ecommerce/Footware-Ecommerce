@@ -77,8 +77,8 @@ func Signup() gin.HandlerFunc {
 		}
 
 		//convert the password by using bcrypt adaptive hashing algorithm
-		password := HashPassword(*user.Password)
-		user.Password = &password
+		password := HashPassword(user.Password)
+		user.Password = password
 
 		user.UserCart = make([]models.ProductUser, 0)
 		user.Address_Details = make([]models.Address, 0)
@@ -109,9 +109,9 @@ func Signup() gin.HandlerFunc {
 		//It is a unique identifier for each document or record.
 		user.ID = primitive.NewObjectID()
 		user.User_ID = user.ID.Hex()
-		token, refreshToken, _ := helper.GenerateAllTokens(*user.Email, *user.First_Name, *user.Last_Name, *user.User_type, *&user.User_ID)
-		user.Token = &token //generate the token from given data by using bcrypt package
-		user.Refresh_Token = &refreshToken
+		token, refreshToken, _ := helper.GenerateAllTokens(user.Email, user.First_Name, user.Last_Name, user.User_type, user.User_ID)
+		user.Token = token //generate the token from given data by using bcrypt package
+		user.Refresh_Token = refreshToken
 		//Refresh token: The refresh token is used to generate a new access token.
 		//Typically, if the access token has an expiration date, once it expires, the user would have to
 		//authenticate again to obtain an access token
@@ -124,7 +124,7 @@ func Signup() gin.HandlerFunc {
 		defer cancel() //closed the database.
 		//A Context is a standard Go data value that can report whether the overall operation it represents
 		//has been canceled and is no longer needed
-		c.JSON(http.StatusOK, resultInsertionNumber)
+		c.JSON(http.StatusCreated, resultInsertionNumber)
 	}
 
 }
@@ -147,17 +147,17 @@ func Login() gin.HandlerFunc {
 			return
 		}
 
-		passwordIsValid, msg := VerifyPassword(*user.Password, *foundUser.Password) //check user entered password is correct or not.
+		passwordIsValid, msg := VerifyPassword(user.Password, foundUser.Password) //check user entered password is correct or not.
 		defer cancel()
 		if passwordIsValid != true {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 			return
 		}
 
-		if foundUser.Email == nil {
+		if foundUser.Email == "" {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Email not found.Please enter correct email OR please SIGNUP"})
 		}
-		token, refreshToken, _ := helper.GenerateAllTokens(*foundUser.Email, *foundUser.First_Name, *foundUser.Last_Name, *foundUser.User_type, foundUser.User_ID)
+		token, refreshToken, _ := helper.GenerateAllTokens(foundUser.Email, foundUser.First_Name, foundUser.Last_Name, foundUser.User_type, foundUser.User_ID)
 		helper.UpdateAllTokens(token, refreshToken, foundUser.User_ID)
 		err = UserCollection.FindOne(ctx, bson.M{"user_id": foundUser.User_ID}).Decode(&foundUser) // find user details in database.
 
@@ -172,7 +172,7 @@ func Login() gin.HandlerFunc {
 func ProductAddByAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-		var products models.Product //custome product details datatype
+		var products models.Product //customer product details datatype
 		defer cancel()
 		if err := c.BindJSON(&products); err != nil { //received data from postman in format of json and convert in go datatype means unmarshalling.
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -216,7 +216,7 @@ func AllProductList() gin.HandlerFunc {
 			return
 		}
 		defer cancel()
-		c.IndentedJSON(200, productlist)
+		c.IndentedJSON(http.StatusOK, productlist)
 
 	}
 }
